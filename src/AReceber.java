@@ -42,6 +42,7 @@ public class AReceber extends JFrame {
 	}
 	Connection connection=null;
 	private JTextField txtmes;
+	private JTextField txttotal;
 	
 
 	/**
@@ -176,6 +177,9 @@ public class AReceber extends JFrame {
 				ResultSet rs=pst.executeQuery();
 				table.setModel(DbUtils.resultSetToTableModel(rs));
 				
+						
+				
+								
 				}catch(Exception e1){
 					e1.printStackTrace();
 				}
@@ -183,5 +187,33 @@ public class AReceber extends JFrame {
 		});
 		btnExibir.setBounds(358, 112, 75, 23);
 		contentPane.add(btnExibir);
+		
+		txttotal = new JTextField();
+		txttotal.setBounds(513, 173, 86, 20);
+		contentPane.add(txttotal);
+		txttotal.setColumns(10);
+		
+		JLabel lblTotalAReceber = new JLabel("Total A Receber");
+		lblTotalAReceber.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		lblTotalAReceber.setBounds(503, 148, 133, 20);
+		contentPane.add(lblTotalAReceber);
+		
+		JButton btnTotal = new JButton("Total");
+		btnTotal.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				
+				double count=0;
+				for (int i=0; i<=table.getRowCount()-1;i++) {
+				count+=Double.parseDouble(table.getValueAt(i, 4).toString());
+				}
+				String soma = Double.toString(count);
+				txttotal.setText(soma);
+							
+								 
+				
+			}
+		});
+		btnTotal.setBounds(523, 202, 65, 23);
+		contentPane.add(btnTotal);
 	}
 }

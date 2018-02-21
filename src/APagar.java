@@ -1,10 +1,13 @@
 import java.awt.BorderLayout;
+import javax.swing.*;
+import java.sql.*;
+import net.proteanit.sql.DbUtils;
 import java.awt.EventQueue;
-
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import java.awt.Font;
 import javax.swing.SwingConstants;
 import javax.swing.JTextField;
@@ -24,6 +27,7 @@ public class APagar extends JFrame {
 	private JTextField txt4;
 	private JTextField txt5;
 	private JTable tbreceber;
+	private JTextField txttotal;
 
 	/**
 	 * Launch the application.
@@ -40,15 +44,18 @@ public class APagar extends JFrame {
 			}
 		});
 	}
-
+	Connection connection=null;
+	private JTextField txtmes;
 	/**
 	 * Create the frame.
 	 */
 	public APagar() {
+		connection=sqliteConnection.dbConnector();
+		
 		setMaximumSize(new Dimension(700, 500));
 		setTitle("Cad. Contas a Pagar");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 480, 443);
+		setBounds(100, 100, 678, 443);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
@@ -119,10 +126,90 @@ public class APagar extends JFrame {
 		JButton btnSalvar = new JButton("Salvar");
 		btnSalvar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				
+				try {
+					
+					String query="insert into pagar values (?,?,?,?,?)";
+					PreparedStatement pst=connection.prepareStatement(query);
+					pst.setString(1, txt1.getText());
+					pst.setString(2, txt2.getText());
+					pst.setString(3, txt3.getText());
+					pst.setString(4, txt4.getText());
+					pst.setString(5, txt5.getText());
+					
+					pst.execute();
+					
+					JOptionPane.showMessageDialog(null, "Salvo");
+					txt1.setText("");
+					txt2.setText("");
+					txt3.setText("");
+					txt4.setText("");
+					txt5.setText("");
+					
+				}catch(Exception e1) {
+					e1.printStackTrace();
+				
+				}
 			}
 		});
 		btnSalvar.setBounds(347, 87, 86, 23);
 		contentPane.add(btnSalvar);
+		
+		txttotal = new JTextField();
+		txttotal.setBounds(495, 140, 86, 20);
+		contentPane.add(txttotal);
+		txttotal.setColumns(10);
+		
+		JLabel lblTotalAPagar = new JLabel("Total a Pagar");
+		lblTotalAPagar.setHorizontalAlignment(SwingConstants.CENTER);
+		lblTotalAPagar.setBounds(495, 117, 86, 14);
+		contentPane.add(lblTotalAPagar);
+		
+		JButton btnTotal = new JButton("Total");
+		btnTotal.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				double count=0;
+				for (int i=0; i<=tbreceber.getRowCount()-1;i++) {
+				count+=Double.parseDouble(tbreceber.getValueAt(i, 4).toString());
+				}
+				String soma = Double.toString(count);
+				txttotal.setText(soma);
+			}
+		});
+		btnTotal.setBounds(495, 171, 89, 23);
+		contentPane.add(btnTotal);
+		
+		JLabel lblExibirOsPagamentos = new JLabel("Exibir os Pagamentos do mes de numero: ");
+		lblExibirOsPagamentos.setBounds(10, 121, 245, 14);
+		contentPane.add(lblExibirOsPagamentos);
+		
+		txtmes = new JTextField();
+		txtmes.setColumns(10);
+		txtmes.setBounds(249, 118, 29, 20);
+		contentPane.add(txtmes);
+		
+		JButton button = new JButton("Exibir");
+		button.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				
+				try{String query="select * from pagar where mes=?";
+				PreparedStatement pst=connection.prepareStatement(query);
+				pst.setString(1, txtmes.getText());
+				ResultSet rs=pst.executeQuery();
+				tbreceber.setModel(DbUtils.resultSetToTableModel(rs));
+				
+						
+				
+								
+				}catch(Exception e1){
+					e1.printStackTrace();
+				}
+				
+			}
+		});
+		button.setBounds(288, 113, 75, 23);
+		contentPane.add(button);
 	}
 
 }
